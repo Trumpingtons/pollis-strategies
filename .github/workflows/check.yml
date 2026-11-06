@@ -1,0 +1,26 @@
+# Checks every pull request: every strategy of strategies/, with scripts/strategies.ts (see the checks at its top).
+# Runs with a read-only token and no secrets, so a pull request from a fork cannot write to this repository. The
+# check script is taken from main, not from the pull request.
+name: Check
+
+on:
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Use the check script of main
+        run: git checkout "origin/${{ github.base_ref }}" -- scripts
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - name: Check the strategies
+        run: node scripts/strategies.ts check
